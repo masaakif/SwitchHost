@@ -1,0 +1,7 @@
+target/*
+project/target/*
+*.jar
+*.exe
+*.class
+*.cache
+.idea/workspace.xml
