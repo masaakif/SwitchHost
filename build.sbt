@@ -5,7 +5,14 @@ name := "SwitchHost"
 
 version := "1.0"
 
-// Build exe file
+// import dependencies
+
+
+libraryDependencies ++= Seq(
+    "commons-io" % "commons-io" % "2.4",
+		"org.specs2" %% "specs2" % "2.3.4" % "test"
+)
+
 val jar2exe = inputKey[Unit]("Use jsmooth to create exe from jar")
 
 jar2exe := { import scala.sys.process.Process
