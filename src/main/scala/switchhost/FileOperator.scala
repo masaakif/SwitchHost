@@ -20,6 +20,9 @@ object FileOperator {
 		dest
 	}
 
+	def move(f:String, dest:String):Unit = move(new File(f), dest)
+	def move(f:File, dest:String):Unit = FileUtils.moveToDirectory(f, new File(dest), false)
+
 	def backup(f:String):File = backup(new File(f))
 	def backup(f:File):File = copy(f, "_" + today)
 
