@@ -56,6 +56,17 @@ class Specs2FileOperatorTest extends Specification {
 			val f2 = new File("movetest.txt")
 			f2.exists == true
 		}
+
+		"empty then write 1 line" in {
+			val f = "emptytest.txt"
+			val f1 = FileOperator.create(f)
+			FileOperator.readWhole(f1) must beEqualTo("")
+			FileOperator.write(f1, "hogehoge")
+			FileOperator.readWhole(f1) must beEqualTo("hogehoge")
+			FileOperator.delete(f1)
+
+			f1.exists == false
+		}
 	}
 }
 
@@ -88,11 +99,17 @@ class Specs2HostSwitcherTest extends Specification {
 		}
 
 		"read from resource table" in {
-			val lists = FileOperator.readWhole("/ipaddresstest.txt")
+			val lists = FileOperator.readWholeFromResource("/ipaddresstest.txt")
 			val h = HostSwitcher(lists)
 			h.getBuddy("111.111.111.111").get must equalTo("200.200.200.200")
 			h.getBuddy("201.201.201.201").get must equalTo("112.112.112.112")
 			h.getBuddy("999.999.999.999").getOrElse("empty") must equalTo("empty")
+		}
+
+		"replace file" in {
+			val lists = FileOperator.readWholeFromResource("/ipaddresstest.txt")
+			val h = HostSwitcher(lists)
+
 		}
 	}
 }

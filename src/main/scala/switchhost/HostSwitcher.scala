@@ -32,12 +32,22 @@ class HostSwitcher private(ips:String) {
 		}
 	}
 
+	def replaceFile(f:File) = {
+		import scala.collection.JavaConversions._
+		import org.apache.commons.io.FileUtils
 
+		val tmp = FileOperator.createTemp(f)
+		FileOperator.makeEmpty(f)
+		val convertedLines = FileOperator.getLineIterator(tmp).foldLeft(""){(res, l) =>
+			res + replace(l) + "\r\n"
+		}
+
+
+	}
 }
 
 object Main extends App {
 	val hosts = "c:\\windows\\system32\\drivers\\etc\\hosts"
 	val mw = new switchhost.gui.MainWindow(null)
 	mw.show
-
 }
