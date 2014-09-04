@@ -13,7 +13,7 @@ object HostSwitcher{
 class HostSwitcher private(ips:String) {
 	type ipmap = Map[String, String]
 
-	val ipTable:ipmap = (Map.empty[String, String] /: ips.split("\n")) {(it, ip_pair) =>
+	private val ipTable:ipmap = (Map.empty[String, String] /: ips.split("\n")) {(it, ip_pair) =>
 		val a:Array[String] = ip_pair.split("[ |\t]*[,| |\t][ |\t]*").filterNot(_=="")
 		it + (a(0) -> a(1)) + (a(1) -> a(0))
 	}
@@ -31,4 +31,7 @@ class HostSwitcher private(ips:String) {
 
 object Main extends App {
 	val hosts = "c:\\windows\\system32\\drivers\\etc\\hosts"
+	val mw = new switchhost.gui.MainWindow
+	mw.show
+
 }
