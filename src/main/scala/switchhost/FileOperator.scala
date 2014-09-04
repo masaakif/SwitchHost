@@ -8,6 +8,8 @@ object FileOperator {
 	import java.io.File
 	import org.apache.commons.io.FileUtils
 	import java.util.Date
+	import java.net.URL
+	import java.io.{InputStreamReader, BufferedReader, InputStream}
 
 	def cwd = new File(".").getAbsoluteFile.getParent
 	def today = "%tY%<tm%<td" format new Date
@@ -28,4 +30,11 @@ object FileOperator {
 
 	def createTemp(f:String):File = createTemp(new File(f))
 	def createTemp(f:File):File = copy(f, "_tmp")
+
+	def readWhole(f:String):String = readWhole(getClass.getResource(f))
+	def readWhole(u:URL):String = {
+		val br = new BufferedReader(new InputStreamReader(u.openStream, "UTF-8"))
+		val lines = Iterator.continually(br.readLine).takeWhile(_!=null).foldLeft("")((res,l) => res + "\r\n" + l)
+		lines
+	}
 }

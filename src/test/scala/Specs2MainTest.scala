@@ -86,5 +86,13 @@ class Specs2HostSwitcherTest extends Specification {
 			val entry = "123.123.123.123   nochange.host"
 			h.replace(entry) must equalTo(entry)
 		}
+
+		"read from resource table" in {
+			val lists = FileOperator.readWhole("/ipaddresstest.txt")
+			val h = HostSwitcher(lists)
+			h.getBuddy("111.111.111.111").get must equalTo("200.200.200.200")
+			h.getBuddy("201.201.201.201").get must equalTo("112.112.112.112")
+			h.getBuddy("999.999.999.999").getOrElse("empty") must equalTo("empty")
+		}
 	}
 }

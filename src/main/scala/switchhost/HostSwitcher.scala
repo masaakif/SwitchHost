@@ -5,6 +5,8 @@ package switchhost
  */
 
 import scala.collection.mutable.Map
+import java.io.File
+import java.net.URL
 
 object HostSwitcher{
 	def apply(ips:String) = new HostSwitcher(ips)
@@ -13,7 +15,9 @@ object HostSwitcher{
 class HostSwitcher private(ips:String) {
 	type ipmap = Map[String, String]
 
-	private val ipTable:ipmap = (Map.empty[String, String] /: ips.split("\n")) {(it, ip_pair) =>
+	def this(u:URL) = this(FileOperator.readWhole(u))
+
+	private val ipTable:ipmap = (Map.empty[String, String] /: ips.lines.filterNot(_=="")) {(it, ip_pair) =>
 		val a:Array[String] = ip_pair.split("[ |\t]*[,| |\t][ |\t]*").filterNot(_=="")
 		it + (a(0) -> a(1)) + (a(1) -> a(0))
 	}
@@ -27,11 +31,13 @@ class HostSwitcher private(ips:String) {
 			case None => entry
 		}
 	}
+
+
 }
 
 object Main extends App {
 	val hosts = "c:\\windows\\system32\\drivers\\etc\\hosts"
-	val mw = new switchhost.gui.MainWindow
+	val mw = new switchhost.gui.MainWindow(null)
 	mw.show
 
 }
