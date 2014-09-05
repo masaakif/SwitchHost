@@ -14,7 +14,7 @@ object FileOperator {
 	import java.io.{InputStreamReader, BufferedReader, InputStream}
 
 	def cwd = new File(".").getAbsoluteFile.getParent
-	def today = "%tY%<tm%<td" format new Date
+	def today = "%tY%<tm%<td_%<tH%<tM%<tS" format new Date
 	def delete(f:String) = FileUtils.deleteQuietly(new File(cwd +  "//" + f))
 	def delete(f:File) = FileUtils.deleteQuietly(f)
 
@@ -33,14 +33,15 @@ object FileOperator {
 	def createTemp(f:String):File = createTemp(new File(f))
 	def createTemp(f:File):File = copy(f, "_tmp")
 
-	private def combineToOneString(br:BufferedReader) = {
-		Iterator.continually(br.readLine).takeWhile(_!=null).foldLeft("")((res,l) => res + l + "\r\n")
+	private def combineToOneString(br:BufferedReader):String = {
+		val lines = Iterator.continually(br.readLine).takeWhile(_!=null).foldLeft("")((res,l) => res + l + "\r\n")
+		br.close
+		lines
 	}
 	def readWholeFromResource(f:String):String = readWhole(getClass.getResource(f))
 	def readWhole(f:String):String = readWhole(new File(f))
 	def readWhole(u:URL):String = {
-		val br = new BufferedReader(new InputStreamReader(u.openStream, "UTF-8"))
-		combineToOneString(br)
+		combineToOneString(new BufferedReader(new InputStreamReader(u.openStream, "UTF-8")))
 	}
 	def readWhole(f:File):String = {
 		combineToOneString(new BufferedReader(new InputStreamReader(new FileInputStream(f))))

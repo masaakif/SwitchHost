@@ -62,9 +62,8 @@ class Specs2FileOperatorTest extends Specification {
 			val f1 = FileOperator.create(f)
 			FileOperator.readWhole(f1) must beEqualTo("")
 			FileOperator.write(f1, "hogehoge")
-			FileOperator.readWhole(f1) must beEqualTo("hogehoge")
-			FileOperator.delete(f1)
-
+			FileOperator.readWhole(f1) must beEqualTo("hogehoge\r\n")
+			FileOperator.delete(f)
 			f1.exists == false
 		}
 	}
@@ -74,18 +73,21 @@ class Specs2HostSwitcherTest extends Specification {
 	"HostSwitcher" should {
 		val list = "111.111.111.111,200.200.200.200"
 		"read IP address list" in {
-			val h = HostSwitcher(list)
+			val h = HostSwitcher()
+			h.importTable(list)
 			h.getList must equalTo(Map(("111.111.111.111", "200.200.200.200"), ("200.200.200.200","111.111.111.111")))
 		}
 
 		"get correspondat buddy IP" in {
-			val h = HostSwitcher(list)
+			val h = HostSwitcher()
+			h.importTable(list)
 			h.getBuddy("111.111.111.111").get must equalTo("200.200.200.200")
 			h.getBuddy("200.200.200.200").get must equalTo("111.111.111.111")
 		}
 
 		"replace '200.200.200.200 hoge.host'" in {
-			val h = HostSwitcher(list)
+			val h = HostSwitcher()
+			h.importTable(list)
 			val entry = "200.200.200.200\thoge.host"
 			val replaced = h.replace(entry)
 			replaced must equalTo("111.111.111.111\thoge.host")
@@ -93,23 +95,28 @@ class Specs2HostSwitcherTest extends Specification {
 		}
 
 		"not able to replace '123.123.123.123 nochange.host'" in {
-			val h = HostSwitcher(list)
+			val h = HostSwitcher()
+			h.importTable(list)
 			val entry = "123.123.123.123   nochange.host"
 			h.replace(entry) must equalTo(entry)
 		}
 
 		"read from resource table" in {
-			val lists = FileOperator.readWholeFromResource("/ipaddresstest.txt")
-			val h = HostSwitcher(lists)
+			val h = HostSwitcher("/ipaddresstest.txt")
 			h.getBuddy("111.111.111.111").get must equalTo("200.200.200.200")
 			h.getBuddy("201.201.201.201").get must equalTo("112.112.112.112")
 			h.getBuddy("999.999.999.999").getOrElse("empty") must equalTo("empty")
 		}
 
-		"replace file" in {
-			val lists = FileOperator.readWholeFromResource("/ipaddresstest.txt")
-			val h = HostSwitcher(lists)
-
+		"replace file by iptable" in {
+			val h = HostSwitcher("/ipaddresstest.txt", "myhosts")
+			val res1 = "#####\r\n200.200.200.200\thoge.host\thoge\r\n120.120.120.120 hoge2.host  hoge2\r\n#### sample\r\n"
+			val res2 = "#####\r\n111.111.111.111\thoge.host\thoge\r\n120.120.120.120 hoge2.host  hoge2\r\n#### sample\r\n"
+			h.getContents must equalTo(res1)
+			h.replaceFile
+			h.getContents must equalTo(res2)
+			h.replaceFile
+			h.getContents must equalTo(res1)
 		}
 	}
 }
